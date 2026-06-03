@@ -2,43 +2,54 @@
 session_start();
 require_once("settings.php");
 
-$conn = mysqli_connect($host, $username, $password, $database);
+$conn = mysqli_connect($host, $user, $pwd, $sql_db);
 
-if (!$conn) {
-    die("Connection failed: " . mysqli_connect_error());
-}
+if (isset($_POST['login'])) {
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $username = trim($_POST['username']);
-    $password = trim($_POST['password']);
+    $username = mysqli_real_escape_string($conn, $_POST['username']);
+    $password = mysqli_real_escape_string($conn, $_POST['password']);
 
-    $query = "SELECT * FROM users WHERE username = '$username' AND password = '$password'";
-    $result = mysqli_query($conn, $query);
-    $user = mysqli_fetch_assoc($result);
+    $sql = "SELECT * FROM users
+            WHERE username='$username'
+            AND password='$password'";
 
-    if ($user) {
-        $_SESSION['username'] = $user['username'];
+    $result = mysqli_query($conn, $sql);
+
+    if (mysqli_num_rows($result) == 1) {
+
+        $_SESSION['username'] = $username;
+
         header("Location: profile.php");
         exit();
-    } else {
-        echo "❌ Incorrect username or password.";
+    }
+    else {
+        echo "<p>Invalid username or password.</p>";
     }
 }
 ?>
+
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>Login Page</title>
+    <title>Login</title>
 </head>
 <body>
-  <h2>Login</h2>
-  <form method="post" action="login.php">
-    <label>Username:</label>
-    <input type="text" name="username" required><br>
-    <label>Password:</label>
-    <input type="password" name="password" required><br>
-    <button type="submit">Login</button>
-  </form>
+
+<h1>Login</h1>
+
+<form method="post">
+
+    Username:
+    <input type="text" name="username" required>
+    <br><br>
+
+    Password:
+    <input type="password" name="password" required>
+    <br><br>
+
+    <input type="submit" name="login" value="Login">
+
+</form>
+
 </body>
 </html>

@@ -1,12 +1,6 @@
 <?php
 $host = "localhost";
-$username = "root";
-$password = "";
-$database = "lab8";
-
-$conn = mysqli_connect($host, $username, $password, $database);
-
-if (!$conn) {
-    die("Connection failed: " . mysqli_connect_error());
-}
+$user = "root";
+$pwd = "";
+$sql_db = "usernames_db";
 ?>

@@ -1,44 +1,67 @@
 <?php
 session_start();
+
+if (!isset($_SESSION['username'])) {
+    header("Location: login.php");
+    exit();
+}
+
 require_once("settings.php");
 
-$conn = mysqli_connect($host, $username, $password, $database);
+$conn = mysqli_connect($host, $user, $pwd, $sql_db);
 
-if (!$conn) {
-    die("Connection failed: " . mysqli_connect_error());
-}
+$username = $_SESSION['username'];
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $username = trim($_POST['username']);
-    $password = trim($_POST['password']);
+$sql = "SELECT * FROM users WHERE username='$username'";
 
-    $query = "SELECT * FROM users WHERE username = '$username' AND password = '$password'";
-    $result = mysqli_query($conn, $query);
-    $user = mysqli_fetch_assoc($result);
+$result = mysqli_query($conn, $sql);
 
-    if ($user) {
-        $_SESSION['username'] = $user['username'];
-        header("Location: profile.php");
-        exit();
-    } else {
-        echo "❌ Incorrect username or password.";
-    }
-}
+$row = mysqli_fetch_assoc($result);
 ?>
+
 <!DOCTYPE html>
-<html lang="en">
+<html>
+
 <head>
-  <meta charset="UTF-8">
-  <title>Login Page</title>
+    <title>Profile</title>
 </head>
+
 <body>
-  <h2>Login</h2>
-  <form method="post" action="login.php">
-    <label>Username:</label>
-    <input type="text" name="username" required><br>
-    <label>Password:</label>
-    <input type="password" name="password" required><br>
-    <button type="submit">Login</button>
-  </form>
+
+    <h1>Profile Page</h1>
+
+    <p>
+        <strong>Username:</strong>
+        <?php echo $row['username']; ?>
+    </p>
+
+    <p>
+        <strong>Email:</strong>
+        <?php echo $row['email']; ?>
+    </p>
+
+    <hr>
+
+    <h2>Edit Profile</h2>
+
+    <form action="update_profile.php" method="post">
+
+        New Email:
+
+        <input
+            type="email"
+            name="email"
+            value="<?php echo $row['email']; ?>"
+            required>
+
+        <input type="submit" value="Update">
+
+    </form>
+
 </body>
+
 </html>
+
+<?php
+mysqli_close($conn);
+?>
